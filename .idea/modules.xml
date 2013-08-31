@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../../ana/pdfs/.idea/pdfs.iml" filepath="$PROJECT_DIR$/../../../ana/pdfs/.idea/pdfs.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/unilibs.iml" filepath="$PROJECT_DIR$/.idea/unilibs.iml" />
     </modules>
   </component>

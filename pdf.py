@@ -157,7 +157,7 @@ class PDF(object):
         if self._pdf_type == 'MC':
             self._calc_pdf_mc_uncert(flavor)
         elif self._pdf_type == 'EV':
-            self._calc_pdf_ev_uncert(flavor, symmetric=False)
+            self._calc_pdf_ev_uncert(flavor)
 
     def _calc_mod_uncert(self, flavor):
         if not self._varpdf:

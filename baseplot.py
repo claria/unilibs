@@ -4,14 +4,29 @@ import matplotlib
 import numpy
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
+# from matplotlib.ticker import MultipleLocator
 
 
 class SimplePlot(object):
 
-    def __init__(self):
-        self.prepare_matplotlib()
+    def __init__(self, output_fn='test.png', autoscale=True, style='none'):
+
+        self.init_matplotlib()
         self.fig = plt.figure()
+
+        self.output_fn = output_fn
+        self.do_autoscale = autoscale
+        self.style = style
+
+    def do_Plot(self):
+
+        """
+        Run all three plotting steps
+
+        """
+        self.prepare()
+        self.produce()
+        self.finalize()
 
     def prepare(self, **kwargs):
         """
@@ -19,6 +34,7 @@ class SimplePlot(object):
         Add axes to Figure, etc
         """
         self.ax = self.fig.add_subplot(1, 1, 1)
+        self.set_style(self.ax)
 
     def produce(self):
         """
@@ -26,29 +42,34 @@ class SimplePlot(object):
         """
         pass
 
-    def finalize(self, filepath='test.pdf'):
+    def finalize(self):
         """
         Apply final settings, autoscale etc
         Save the plot
         :param filepath:
         """
+        if self.do_autoscale:
+            self.autoscale(margin=0.1)
 
-        self.autoscale(margin=0.1)
-
-        directory = os.path.dirname(filepath)
+        #Check if directory exists and create if not
+        directory = os.path.dirname(self.output_fn)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        self.fig.savefig(filepath)
+        self.fig.savefig(self.output_fn)
+        plt.clf()
+        plt.close()
 
-    def prepare_matplotlib(self):
-        # matplotlib.use('agg')
-        # matplotlib.use('pdf')
+    def init_matplotlib(self):
 
+        """
+        Initialize matplotlib with following rc
+
+        """
         matplotlib.rcParams['lines.linewidth'] = 2
         matplotlib.rcParams['font.family'] = 'sans-serif'
         matplotlib.rcParams['font.style'] = 'normal'
-        matplotlib.rcParams['font.size'] = 22.
+        matplotlib.rcParams['font.size'] = 20.
         matplotlib.rcParams['legend.fontsize'] = 14.
         matplotlib.rcParams['text.usetex'] = False
         # Axes
@@ -61,34 +82,40 @@ class SimplePlot(object):
     #
     # Helper functions
     #
-    def set_preset_text(self, text, loc='topright', **kwargs):
+    def set_preset_text(self, ax, text, loc='topright', **kwargs):
         """
         Possible Positions : topleft, topright
         """
 
         if loc == 'topleft':
-            kwargs.update({'x' : 0.0, 'y' : 1.01, 'va' : 'bottom',
-                            'ha' : 'left'})
+            kwargs.update({'x': 0.0, 'y' : 1.01, 'va': 'bottom',
+                            'ha': 'left'})
         elif loc == 'topright':
-            kwargs.update({'x' : 1.0, 'y' : 1.01, 'va' : 'bottom',
-                            'ha' : 'right'})
+            kwargs.update({'x': 1.0, 'y': 1.01, 'va': 'bottom',
+                            'ha': 'right'})
         else:
-            raise Expection()
+            raise Exception()
         print kwargs
-        self.ax.text(s=text, transform=self.ax.transAxes, color='Black', **kwargs)
 
-    def set_style(self, style, show_cme=True, **kwargs):
+        ax.text(s=text, transform=ax.transAxes, color='Black', **kwargs)
+
+    def set_style(self,  ax, style, show_cme=True):
         """
         Some preset styles
         """
+        if style == 'none':
+            pass
         if style == 'cmsprel':
-            cmstext = "CMS Preliminary"
+            self.set_preset_text(ax, "CMS Preliminary", loc='topleft')
+            if show_cme:
+                self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
+                                      loc='topleft',)
         else:
-            cmstext = "CMS"
+            self.set_preset_text(ax, "CMS", loc='topleft')
+            if show_cme:
+                self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
+                                     loc='topleft',)
 
-        self.set_preset_text(cmstext, loc='topleft')
-        if show_cme:
-            self.set_preset_text(r"$\sqrt{s} = 7\/ \mathrm{TeV}$", loc='topleft')
 
     def autoscale(self, xmargin=0.0, ymargin=0.0, margin=0.0):
         # User defined autoscale with margins
