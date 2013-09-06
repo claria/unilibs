@@ -4,7 +4,6 @@ import matplotlib
 import numpy
 
 import matplotlib.pyplot as plt
-# from matplotlib.ticker import MultipleLocator
 
 
 class SimplePlot(object):

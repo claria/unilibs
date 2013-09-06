@@ -67,8 +67,7 @@ class PDF(object):
             self._pdf_type = 'EV'
             self._has_var = True
         else:
-            print 'No PDF type identified. Quitting.'
-            sys.exit(1)
+            raise Execption('No PDF type identified. Quitting.')
 
     def _read_lhapdf(self, lhgrid_filename):
         pdf = {}
@@ -94,6 +93,13 @@ class PDF(object):
                     #UVAL 2-(-2)
                     pdf[member][i] = lhapdf.xfx(xi, self._q, 2) - \
                                      lhapdf.xfx(xi, self._q, -2)
+                elif flavor == 9:
+                    #Light sea: xS=2(xubar + xdbar + xsbar)
+                    pdf[member][i] = 2*(lhapdf.xfx(xi, self._q, -1) + \
+                                     lhapdf.xfx(xi, self._q, -2) + \
+                                     lhapdf.xfx(xi, self._q, -3)) 
+                else:
+                    raise Exception('Flavor not defined')
         return pdf
 
     def get_pdf_central(self, flavor):
@@ -108,13 +114,13 @@ class PDF(object):
             self._calc_pdf_zeroth(flavor)
 
     def _calc_pdf_mean(self, flavor):
-        if not self._pdf:
+        if not flavor in  self._pdf:
             self._pdf = self._read_lhapdf(self._lhgrid_filename)
         self._pdf_central[flavor] = numpy.mean(
             self._pdf[flavor][1:], axis=0)
 
     def _calc_pdf_zeroth(self, flavor):
-        if not self._pdf:
+        if not flavor in self._pdf:
             self._pdf = self._read_lhapdf(self._lhgrid_filename)
         self._pdf_central[flavor] = self._pdf[flavor][0]
 
@@ -167,7 +173,7 @@ class PDF(object):
         mod_uncert_down = numpy.zeros(self._varpdf[flavor].shape[1])
         mod_uncert_up = numpy.zeros(self._varpdf[flavor].shape[1])
 
-        print "Assuming member 1 to 8 are model uncertainties"
+        #print "Assuming member 1 to 8 are model uncertainties"
 
         for member in range(1, 9):
             mod_uncert_up += numpy.square(numpy.maximum(
@@ -188,7 +194,7 @@ class PDF(object):
         par_uncert_down = numpy.zeros(self._varpdf[flavor].shape[1])
         par_uncert_up = numpy.zeros(self._varpdf[flavor].shape[1])
 
-        print "Assuming member 9 to x are par variations"
+        #print "Assuming member 9 to x are par variations"
 
         for member in range(9, self._varpdf[flavor].shape[0]):
         #if member in [11,12]:
