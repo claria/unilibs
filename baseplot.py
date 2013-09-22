@@ -2,7 +2,7 @@ import os
 
 import matplotlib
 import numpy
-
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -32,8 +32,7 @@ class SimplePlot(object):
         Before plotting:
         Add axes to Figure, etc
         """
-        self.ax = self.fig.add_subplot(1, 1, 1)
-        self.set_style(self.ax)
+        pass
 
     def produce(self):
         """
@@ -55,7 +54,7 @@ class SimplePlot(object):
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        self.fig.savefig(self.output_fn)
+        self.fig.savefig(self.output_fn, bbox_inches='tight')
         plt.clf()
         plt.close()
 
@@ -74,9 +73,9 @@ class SimplePlot(object):
         # Axes
         matplotlib.rcParams['axes.linewidth'] = 2.0
         # Saving
-        matplotlib.rcParams['savefig.bbox'] = 'tight'
-        matplotlib.rcParams['savefig.dpi'] = 300
-        matplotlib.rcParams['savefig.format'] = 'pdf'
+        #matplotlib.rcParams['savefig.bbox'] = 'tight'
+        matplotlib.rcParams['savefig.dpi'] = 90
+        #matplotlib.rcParams['savefig.format'] = 'pdf'
 
     #
     # Helper functions
@@ -104,7 +103,7 @@ class SimplePlot(object):
         """
         if style == 'none':
             pass
-        if style == 'cmsprel':
+        elif style == 'cmsprel':
             self.set_preset_text(ax, "CMS Preliminary", loc='topleft')
             if show_cme:
                 self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
