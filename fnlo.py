@@ -8,32 +8,31 @@ class SimpleFastNLOReader(FastNLOLHAPDF):
 
     def __init__(self,
                  table_filename,
-                 lhapdf_filename,
-                 member=0,
-                 mur = 1.0,
-                 muf = 1.0):
+                 lhapdf_filename=None,
+                 member=None,
+                 mur = None,
+                 muf = None):
+
 
         self._table_filename = table_filename
-        self._lhapdf_filename = lhapdf_filename
-        self._member = member
-        self._mur = mur
-        self._muf = muf
+        super(SimpleFastNLOReader, self).__init__(self._table_filename)
 
-        self._pdf_type = self._get_pdf_type()
+        if lhapdf_filename:
+            self.SetLHAPDFFilename(lhapdf_filename)
 
-        self._fnlo = FastNLOLHAPDF(self._table_filename,
-                                   self._lhapdf_filename, self._member)
-        self._fnlo.FillPDFCache()
-        self._fnlo.SetScaleFactorsMuRMuF(self._mur, self._muf)
-        self._fnlo.SetLHAPDFMember(self._member)
+        if member:
+            self.SetLHAPDFMember(member)
+
+        if mur and muf:
+            self.SetScaleFactorsMuRMuF(mur,muf)
+
 
         # infos about pdfs and bins
-        self._npdfmembers = self._fnlo.GetNPDFMembers()
-        self._nobsbins = self._fnlo.GetNObsBins()
-        self._ndiffbins = self._fnlo.GetNDiffBin()
+        self._nobsbins = self.GetNObsBins()
+        self._ndiffbins = self.GetNDiffBin()
 
-        self._obsbins_down = numpy.array(self._fnlo.GetLowBinEdge()).transpose()
-        self._obsbins_up = numpy.array(self._fnlo.GetUpBinEdge()).transpose()
+        self._obsbins_down = numpy.array(self.GetLowBinEdge()).transpose()
+        self._obsbins_up = numpy.array(self.GetUpBinEdge()).transpose()
 
 
     def _get_pdf_type(self):
@@ -62,17 +61,35 @@ class SimpleFastNLOReader(FastNLOLHAPDF):
                 "PDF type not identified:{}".format(self._lhapdf_filename))
 
 
-    def GetCrossSection(self):
-        self._fnlo.CalcCrossSection()
-        out = numpy.array(self._fnlo.GetCrossSection())
-        return out
-
     def GetDiffBin(self, diffbin):
         return numpy.array(zip(self._obsbins_down[diffbin],
                                self._obsbins_up[diffbin]))
 
     def GetDiffBinMid(self, diffbin):
         return (self._obsbins_down[diffbin] + self._obsbins_up[diffbin]) / 2
+
+    def GetCrossSection(self):
+        self.CalcCrossSection()
+        return numpy.array(super(SimpleFastNLOReader,self).GetCrossSection())
+
+    def SetLHAPDFFilename(self, lhapdf_filename):
+
+        self._lhapdf_filename = lhapdf_filename
+        self._pdf_type = self._get_pdf_type()
+        super(SimpleFastNLOReader,self).SetLHAPDFFilename(lhapdf_filename)
+        #Needed to access N PDF Members
+        self.FillPDFCache()
+        self._npdfmembers = self.GetNPDFMembers()
+
+    def SetLHAPDFMember(self, member):
+
+        self._member = member
+        super(SimpleFastNLOReader,self).SetLHAPDFMember(member)
+
+    def SetScaleFactorsMuRMuF(self, mur, muf):
+        self._mur = mur
+        self._muf = muf
+        super(SimpleFastNLOReader,self).SetScaleFactorsMuRMuF(mur, muf)
 
 class Fnlo(object):
 

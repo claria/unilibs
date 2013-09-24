@@ -8,13 +8,12 @@ import matplotlib.pyplot as plt
 
 class SimplePlot(object):
 
-    def __init__(self, output_fn='test.png', autoscale=True, style='none'):
+    def __init__(self, output_fn='test.png', style='none'):
 
         self.init_matplotlib()
         self.fig = plt.figure()
 
         self.output_fn = output_fn
-        self.do_autoscale = autoscale
         self.style = style
 
     def do_Plot(self):
@@ -46,17 +45,20 @@ class SimplePlot(object):
         Save the plot
         :param filepath:
         """
-        if self.do_autoscale:
-            self.autoscale(margin=0.1)
+        self._save_fig()
+        plt.close(self.fig)
 
+    def _save_fig(self):
+        """
+        Save Fig to File and create directory structure
+        if does not exist
+        """
         #Check if directory exists and create if not
         directory = os.path.dirname(self.output_fn)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         self.fig.savefig(self.output_fn, bbox_inches='tight')
-        plt.clf()
-        plt.close()
 
     def init_matplotlib(self):
 
