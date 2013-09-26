@@ -10,9 +10,8 @@ class SimpleFastNLOReader(FastNLOLHAPDF):
                  table_filename,
                  lhapdf_filename=None,
                  member=None,
-                 mur = None,
-                 muf = None):
-
+                 mur=None,
+                 muf=None):
 
         self._table_filename = table_filename
         super(SimpleFastNLOReader, self).__init__(self._table_filename)
@@ -24,8 +23,7 @@ class SimpleFastNLOReader(FastNLOLHAPDF):
             self.SetLHAPDFMember(member)
 
         if mur and muf:
-            self.SetScaleFactorsMuRMuF(mur,muf)
-
+            self.SetScaleFactorsMuRMuF(mur, muf)
 
         # infos about pdfs and bins
         self._nobsbins = self.GetNObsBins()
@@ -33,7 +31,6 @@ class SimpleFastNLOReader(FastNLOLHAPDF):
 
         self._obsbins_down = numpy.array(self.GetLowBinEdge()).transpose()
         self._obsbins_up = numpy.array(self.GetUpBinEdge()).transpose()
-
 
     def _get_pdf_type(self):
         """ Identify type of PDF LHgrid file
@@ -60,23 +57,25 @@ class SimpleFastNLOReader(FastNLOLHAPDF):
             raise Exception(
                 "PDF type not identified:{}".format(self._lhapdf_filename))
 
+    def GetDiffBinMid(self, diffbin):
+        return (self._obsbins_down[diffbin] + self._obsbins_up[diffbin]) / 2
 
     def GetDiffBin(self, diffbin):
         return numpy.array(zip(self._obsbins_down[diffbin],
                                self._obsbins_up[diffbin]))
 
-    def GetDiffBinMid(self, diffbin):
-        return (self._obsbins_down[diffbin] + self._obsbins_up[diffbin]) / 2
+    def GetDiffbinDelta(self, diffbin):
+        return numpy.abs(self.GetDiffbin(diffbin).T - self.GetDiffBinMid(diffbin))
 
     def GetCrossSection(self):
         self.CalcCrossSection()
-        return numpy.array(super(SimpleFastNLOReader,self).GetCrossSection())
+        return numpy.array(super(SimpleFastNLOReader, self).GetCrossSection())
 
     def SetLHAPDFFilename(self, lhapdf_filename):
 
         self._lhapdf_filename = lhapdf_filename
         self._pdf_type = self._get_pdf_type()
-        super(SimpleFastNLOReader,self).SetLHAPDFFilename(lhapdf_filename)
+        super(SimpleFastNLOReader, self).SetLHAPDFFilename(lhapdf_filename)
         #Needed to access N PDF Members
         self.FillPDFCache()
         self._npdfmembers = self.GetNPDFMembers()
@@ -84,12 +83,13 @@ class SimpleFastNLOReader(FastNLOLHAPDF):
     def SetLHAPDFMember(self, member):
 
         self._member = member
-        super(SimpleFastNLOReader,self).SetLHAPDFMember(member)
+        super(SimpleFastNLOReader, self).SetLHAPDFMember(member)
 
     def SetScaleFactorsMuRMuF(self, mur, muf):
         self._mur = mur
         self._muf = muf
-        super(SimpleFastNLOReader,self).SetScaleFactorsMuRMuF(mur, muf)
+        super(SimpleFastNLOReader, self).SetScaleFactorsMuRMuF(mur, muf)
+
 
 class Fnlo(object):
 
@@ -165,9 +165,8 @@ class Fnlo(object):
             #
 
     def get_all(self):
-        results = {}
-        results['xsnlo'] = self.get_central_crosssection()
-        results['scale_uncert'] = self.get_scale_uncert()
+        results = {'xsnlo': self.get_central_crosssection(),
+                   'scale_uncert': self.get_scale_uncert()}
         if self._pdf_type in ['MC', 'EV', 'SEV', 'EVVAR']:
             results['pdf_uncert'] = self.get_pdf_uncert()
             results['cov_pdf_uncert'] = self.get_pdf_cov_matrix()
@@ -301,6 +300,7 @@ class Fnlo(object):
         if self._member_crosssections is None:
             self._calc_member_crosssections()
         for i in range(1, (self._npdfmembers / 2) + 1):
+            # noinspection PyCallingNonCallable
             cov_matrix += numpy.matrix(self._member_crosssections[2 * i] -
                                        self._member_crosssections[
                                            2 * i - 1]).getT() * numpy.matrix(
@@ -327,9 +327,11 @@ class Fnlo(object):
             scale_crosssection = self.get_member_crosssection(
                 scale_factor=scale_factor)
             scale_uncert[0] = numpy.maximum(scale_uncert[0],
-                                            def_crosssection - scale_crosssection)
+                                            def_crosssection -
+                                            scale_crosssection)
 
             scale_uncert[1] = numpy.maximum(scale_uncert[1],
-                                            scale_crosssection - def_crosssection)
+                                            scale_crosssection -
+                                            def_crosssection)
 
         return scale_uncert

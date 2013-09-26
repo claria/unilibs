@@ -6,7 +6,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-class SimplePlot(object):
+class BasePlot(object):
 
     def __init__(self, output_fn='test.png', style='none'):
 
@@ -163,3 +163,25 @@ class SimplePlot(object):
         else:
             newarr = numpy.array(zip(arr, arr)).ravel()
         return newarr
+
+
+class GenericPlot(BasePlot):
+
+    def __init__(self, datasets, **kwargs):
+        super(GenericPlot, self).__init__()
+        self.datasets = datasets
+
+    def prepare(self, **kwargs):
+        self.ax = self.fig.add_subplots(111)
+        self.ax.set_yscale(kwargs.get('y_scale', 'linear'))
+        self.ax.set_xscale(kwargs.get('x_scale', 'linear'))
+
+    def produce(self):
+
+        for dataset in self.datasets:
+            self.ax.plot(dataset['x'], dataset['y'])
+
+    def finalize(self):
+        self.autoscale(margin=0.1)
+        self._save_fig()
+        plt.close(self.fig)
