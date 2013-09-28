@@ -1,12 +1,14 @@
 import os
-
+from abc import ABCMeta, abstractmethod
 import matplotlib
 import numpy
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
 class BasePlot(object):
+    __metaclass__ = ABCMeta
 
     def __init__(self, output_fn='test.png', style='none'):
 
@@ -16,7 +18,7 @@ class BasePlot(object):
         self.output_fn = output_fn
         self.style = style
 
-    def do_Plot(self):
+    def do_plot(self):
 
         """
         Run all three plotting steps
@@ -26,24 +28,24 @@ class BasePlot(object):
         self.produce()
         self.finalize()
 
+    @abstractmethod
     def prepare(self, **kwargs):
         """
         Before plotting:
         Add axes to Figure, etc
         """
         pass
-
+    @abstractmethod
     def produce(self):
         """
         Do the Plotting
         """
         pass
-
+    @abstractmethod
     def finalize(self):
         """
         Apply final settings, autoscale etc
         Save the plot
-        :param filepath:
         """
         self._save_fig()
         plt.close(self.fig)
@@ -55,12 +57,13 @@ class BasePlot(object):
         """
         #Check if directory exists and create if not
         directory = os.path.dirname(self.output_fn)
-        if not os.path.exists(directory):
+        if directory and not os.path.exists(directory):
             os.makedirs(directory)
 
         self.fig.savefig(self.output_fn, bbox_inches='tight')
 
-    def init_matplotlib(self):
+    @staticmethod
+    def init_matplotlib():
 
         """
         Initialize matplotlib with following rc
@@ -82,24 +85,24 @@ class BasePlot(object):
     #
     # Helper functions
     #
-    def set_preset_text(self, ax, text, loc='topright', **kwargs):
+    @staticmethod
+    def set_preset_text(ax, text, loc='topright', **kwargs):
         """
         Possible Positions : topleft, topright
         """
 
         if loc == 'topleft':
-            kwargs.update({'x': 0.0, 'y' : 1.01, 'va': 'bottom',
-                            'ha': 'left'})
+            kwargs.update({'x': 0.0, 'y': 1.01, 'va': 'bottom',
+                           'ha': 'left'})
         elif loc == 'topright':
             kwargs.update({'x': 1.0, 'y': 1.01, 'va': 'bottom',
-                            'ha': 'right'})
+                           'ha': 'right'})
         else:
             raise Exception()
-        print kwargs
 
         ax.text(s=text, transform=ax.transAxes, color='Black', **kwargs)
 
-    def set_style(self,  ax, style, show_cme=True):
+    def set_style(self, ax, style, show_cme=True):
         """
         Some preset styles
         """
@@ -109,13 +112,12 @@ class BasePlot(object):
             self.set_preset_text(ax, "CMS Preliminary", loc='topleft')
             if show_cme:
                 self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
-                                      loc='topleft',)
+                                     loc='topleft', )
         else:
             self.set_preset_text(ax, "CMS", loc='topleft')
             if show_cme:
                 self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
-                                     loc='topleft',)
-
+                                     loc='topleft', )
 
     def autoscale(self, xmargin=0.0, ymargin=0.0, margin=0.0):
         # User defined autoscale with margins
@@ -145,8 +147,10 @@ class BasePlot(object):
                 y1 *= delta
             self.ax.set_ylim(y0, y1)
 
-    def log_locator_filter(self, x, pos):
-        """Add minor tick labels in log plots at 2* and 5*
+    @staticmethod
+    def log_locator_filter(x, pos):
+        """
+        Add minor tick labels in log plots at 2* and 5*
         """
         s = str(int(x))
         if len(s) == 4:
@@ -155,8 +159,10 @@ class BasePlot(object):
             return s
         return ''
 
-    def steppify_bin(self, arr, isx=False):
-        """Produce stepped array of arr, also of x
+    @staticmethod
+    def steppify_bin(arr, isx=False):
+        """
+        Produce stepped array of arr, also of x
         """
         if isx:
             newarr = numpy.array(zip(arr[0], arr[1])).ravel()
@@ -164,24 +170,65 @@ class BasePlot(object):
             newarr = numpy.array(zip(arr, arr)).ravel()
         return newarr
 
+    @staticmethod
+    def set(obj, *args, **kwargs):
+        """
+        Apply Settings in kwargs, while defaults are set
+        """
+        funcvals = []
+        for i in range(0, len(args) - 1, 2):
+            funcvals.append((args[i], args[i + 1]))
+        funcvals.extend(kwargs.items())
+        for s, val in funcvals:
+            attr = getattr(obj, s)
+            if callable(attr):
+                attr(val)
+            else:
+                setattr(obj, attr, val)
+
 
 class GenericPlot(BasePlot):
 
-    def __init__(self, datasets, **kwargs):
-        super(GenericPlot, self).__init__()
+    def __init__(self, datasets, props=None, output_fn='test.png', **kwargs):
+
+        self.init_matplotlib()
+        self.output_fn = output_fn
         self.datasets = datasets
 
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(111)
+
+        self.props = props
+
     def prepare(self, **kwargs):
-        self.ax = self.fig.add_subplots(111)
-        self.ax.set_yscale(kwargs.get('y_scale', 'linear'))
-        self.ax.set_xscale(kwargs.get('x_scale', 'linear'))
+        pass
 
     def produce(self):
-
         for dataset in self.datasets:
-            self.ax.plot(dataset['x'], dataset['y'])
+            plot_type = dataset.get('plot_type', 'plot')
+            if plot_type == 'plot':
+                self.ax.plot(dataset['x'],
+                             dataset['y'],
+                             label=dataset.get('label', ''),
+                             **dataset.get('props', {}))
+            elif plot_type == 'errorbar':
+                self.ax.errorbar(x=dataset['x'],
+                                 xerr=dataset['dx'],
+                                 y=dataset['y'],
+                                 yerr=dataset['dy'],
+                                 fmt='+',
+                                 label=dataset.get('label', ''),
+                                 **dataset.get('props', {}))
+        if 'ax_props' in dataset:
+            self.set(self.ax, **dataset['ax_props'])
+        self.ax.legend()
 
     def finalize(self):
+
+        for artist, props in self.props.items():
+            obj = getattr(self, artist)
+            self.set(obj, **props)
+
         self.autoscale(margin=0.1)
         self._save_fig()
         plt.close(self.fig)
