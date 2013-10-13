@@ -1,7 +1,7 @@
 import os
 from abc import ABCMeta, abstractmethod
 import matplotlib
-import numpy
+import numpy as np
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -19,10 +19,8 @@ class BasePlot(object):
         self.style = style
 
     def do_plot(self):
-
         """
         Run all three plotting steps
-
         """
         self.prepare()
         self.produce()
@@ -35,12 +33,14 @@ class BasePlot(object):
         Add axes to Figure, etc
         """
         pass
+
     @abstractmethod
     def produce(self):
         """
         Do the Plotting
         """
         pass
+
     @abstractmethod
     def finalize(self):
         """
@@ -64,10 +64,8 @@ class BasePlot(object):
 
     @staticmethod
     def init_matplotlib():
-
         """
         Initialize matplotlib with following rc
-
         """
         matplotlib.rcParams['lines.linewidth'] = 2
         matplotlib.rcParams['font.family'] = 'sans-serif'
@@ -119,14 +117,15 @@ class BasePlot(object):
                 self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
                                      loc='topleft', )
 
-    def autoscale(self, xmargin=0.0, ymargin=0.0, margin=0.0):
+    @staticmethod
+    def autoscale(ax, xmargin=0.0, ymargin=0.0, margin=0.0):
         # User defined autoscale with margins
-        x0, x1 = tuple(self.ax.dataLim.intervalx)
+        x0, x1 = tuple(ax.ax.dataLim.intervalx)
         if margin > 0:
             xmargin = margin
             ymargin = margin
         if xmargin > 0:
-            if self.ax.get_xscale() == 'linear':
+            if ax.get_xscale() == 'linear':
                 delta = (x1 - x0) * xmargin
                 x0 -= delta
                 x1 += delta
@@ -134,10 +133,10 @@ class BasePlot(object):
                 delta = (x1 / x0) ** xmargin
                 x0 /= delta
                 x1 *= delta
-            self.ax.set_xlim(x0, x1)
-        y0, y1 = tuple(self.ax.dataLim.intervaly)
+            ax.set_xlim(x0, x1)
+        y0, y1 = tuple(ax.dataLim.intervaly)
         if ymargin > 0:
-            if self.ax.get_yscale() == 'linear':
+            if ax.get_yscale() == 'linear':
                 delta = (y1 - y0) * ymargin
                 y0 -= delta
                 y1 += delta
@@ -145,7 +144,7 @@ class BasePlot(object):
                 delta = (y1 / y0) ** ymargin
                 y0 /= delta
                 y1 *= delta
-            self.ax.set_ylim(y0, y1)
+            ax.set_ylim(y0, y1)
 
     @staticmethod
     def log_locator_filter(x, pos):
@@ -165,9 +164,9 @@ class BasePlot(object):
         Produce stepped array of arr, also of x
         """
         if isx:
-            newarr = numpy.array(zip(arr[0], arr[1])).ravel()
+            newarr = np.array(zip(arr[0], arr[1])).ravel()
         else:
-            newarr = numpy.array(zip(arr, arr)).ravel()
+            newarr = np.array(zip(arr, arr)).ravel()
         return newarr
 
     @staticmethod
@@ -189,7 +188,7 @@ class BasePlot(object):
 
 class GenericPlot(BasePlot):
 
-    def __init__(self, datasets, props=None, output_fn='test.png', **kwargs):
+    def __init__(self, datasets, output_fn='test.png', props=None,  **kwargs):
 
         self.init_matplotlib()
         self.output_fn = output_fn
@@ -199,9 +198,14 @@ class GenericPlot(BasePlot):
         self.ax = self.fig.add_subplot(111)
 
         self.props = props
+        self.props.update(kwargs.get('post_props', {}))
+        self.pre_props = kwargs.get('pre_props', {})
 
     def prepare(self, **kwargs):
-        pass
+
+        for artist, props in self.props.items():
+            obj = getattr(self, artist)
+            self.set(obj, **props)
 
     def produce(self):
         for dataset in self.datasets:
@@ -219,8 +223,13 @@ class GenericPlot(BasePlot):
                                  fmt='+',
                                  label=dataset.get('label', ''),
                                  **dataset.get('props', {}))
-        if 'ax_props' in dataset:
-            self.set(self.ax, **dataset['ax_props'])
+            elif plot_type == 'fill_between':
+                self.ax.fill_between(x=dataset['x'],
+                                     y1=dataset['y']-dataset['dy'][0],
+                                     y2=dataset['y'] + dataset['dy'],
+                                     #label=dataset.get('label',''),
+                                     **dataset.get('props', {}))
+
         self.ax.legend()
 
     def finalize(self):
@@ -229,6 +238,6 @@ class GenericPlot(BasePlot):
             obj = getattr(self, artist)
             self.set(obj, **props)
 
-        self.autoscale(margin=0.1)
+        self.autoscale(self.ax, margin=0.1)
         self._save_fig()
         plt.close(self.fig)
