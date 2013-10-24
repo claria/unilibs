@@ -67,7 +67,7 @@ class PDF(object):
             self._pdf_type = 'EV'
             self._has_var = True
         else:
-            raise Execption('No PDF type identified. Quitting.')
+            raise Exception('No PDF type identified: %s', self._lhgrid_filename)
 
     def _read_lhapdf(self, lhgrid_filename):
         pdf = {}
@@ -97,7 +97,7 @@ class PDF(object):
                     #Light sea: xS=2(xubar + xdbar + xsbar)
                     pdf[member][i] = 2*(lhapdf.xfx(xi, self._q, -1) + \
                                      lhapdf.xfx(xi, self._q, -2) + \
-                                     lhapdf.xfx(xi, self._q, -3)) 
+                                     lhapdf.xfx(xi, self._q, -3))
                 else:
                     raise Exception('Flavor not defined')
         return pdf

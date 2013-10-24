@@ -1,21 +1,21 @@
 import os
 from abc import ABCMeta, abstractmethod
-import matplotlib
 import numpy as np
 
-matplotlib.use('Agg')
+import matplotlib
 import matplotlib.pyplot as plt
 
 
 class BasePlot(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, output_fn='test.png', style='none'):
+    def __init__(self, output_fn='test', output_ext=None, style='none'):
 
         self.init_matplotlib()
         self.fig = plt.figure()
 
         self.output_fn = output_fn
+        self.output_ext = output_ext if output_ext else ['png',]
         self.style = style
 
     def do_plot(self):
@@ -53,14 +53,15 @@ class BasePlot(object):
     def _save_fig(self):
         """
         Save Fig to File and create directory structure
-        if does not exist
+        if not yet existing.
         """
         #Check if directory exists and create if not
         directory = os.path.dirname(self.output_fn)
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
-
-        self.fig.savefig(self.output_fn, bbox_inches='tight')
+        for ext in self.output_ext:
+            filename = "{}.{}".format(self.output_fn, ext)
+            self.fig.savefig(filename, bbox_inches='tight')
 
     @staticmethod
     def init_matplotlib():
@@ -76,9 +77,9 @@ class BasePlot(object):
         # Axes
         matplotlib.rcParams['axes.linewidth'] = 2.0
         # Saving
-        #matplotlib.rcParams['savefig.bbox'] = 'tight'
+        matplotlib.rcParams['savefig.bbox'] = 'tight'
         matplotlib.rcParams['savefig.dpi'] = 90
-        #matplotlib.rcParams['savefig.format'] = 'pdf'
+        matplotlib.rcParams['savefig.format'] = 'png'
 
     #
     # Helper functions
@@ -88,7 +89,6 @@ class BasePlot(object):
         """
         Possible Positions : topleft, topright
         """
-
         if loc == 'topleft':
             kwargs.update({'x': 0.0, 'y': 1.01, 'va': 'bottom',
                            'ha': 'left'})
@@ -120,7 +120,7 @@ class BasePlot(object):
     @staticmethod
     def autoscale(ax, xmargin=0.0, ymargin=0.0, margin=0.0):
         # User defined autoscale with margins
-        x0, x1 = tuple(ax.ax.dataLim.intervalx)
+        x0, x1 = tuple(ax.dataLim.intervalx)
         if margin > 0:
             xmargin = margin
             ymargin = margin
