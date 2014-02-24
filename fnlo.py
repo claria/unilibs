@@ -1,10 +1,10 @@
 import numpy
 
-from fastnloreader import FastNLOLHAPDF
-# from fastnloreader import SetGlobalVerbosity
+from fastnlo import fastNLOLHAPDF
+from fastnlo import SetGlobalVerbosity
 
 
-class FastNLOUncertainties(object):
+class fastNLOUncertainties(object):
 
     def __init__(self, table_filename,
                  lhgrid_filename,
@@ -25,9 +25,10 @@ class FastNLOUncertainties(object):
 
         self._pdf_clscale = pdf_clscale
 
-        # FastNLOReader instance
+        # fastNLOReader instance
         # SetGlobalVerbosity(1)
-        self._fnlo = FastNLOLHAPDF(self._table_filename,
+        #SetGlobalVerbosity(10)
+        self._fnlo = fastNLOLHAPDF(self._table_filename,
                                    self._lhgrid_filename)
         self._fnlo.SetLHAPDFMember(self._member)
         # Do this immediately to be able to read out nmember
@@ -58,7 +59,7 @@ class FastNLOUncertainties(object):
                    'scale_uncert': self.get_scale_uncert()}
         if self._errortype in ['MC', 'EV', 'SEV', 'EVVAR']:
             results['pdf_uncert'] = self.get_pdf_uncert()
-            results['cov_pdf_uncert'] = self.get_pdf_cov_matrix
+            results['cov_pdf_uncert'] = self.get_pdf_cov_matrix()
         return results
 
     #
@@ -174,7 +175,7 @@ class FastNLOUncertainties(object):
 
     def _get_member_crosssection(self, member=None, scale_factor=None):
         """
-        Call FastNLOReader to get cross section
+        Call fastNLOReader to get cross section
 
         """
         if scale_factor is None:

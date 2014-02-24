@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 class BasePlot(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, output_fn='test', output_ext=None, style='none'):
+    def __init__(self, output_fn='test', output_ext=('png',), style='none'):
 
         self.init_matplotlib()
         self.fig = plt.figure()
 
         self.output_fn = output_fn
-        self.output_ext = output_ext if output_ext else ['png',]
+        self.output_ext = output_ext
         self.style = style
 
     def do_plot(self):
@@ -187,17 +187,25 @@ class BasePlot(object):
 
 
 class GenericPlot(BasePlot):
+    """
+    Very simple generic plotting script
+    A list of datasets has to be provided.
+    A dataset is a dict with x and y keys and dx,dy
+    """
+    def __init__(self, datasets,
+                 output_fn='test.png',
+                 output_ext=('png', ),
+                 props=None,
+                 **kwargs):
+        super(GenericPlot, self).__init__(output_fn=output_fn,
+                                          output_ext=output_ext,
+                                          **kwargs)
 
-    def __init__(self, datasets, output_fn='test.png', props=None,  **kwargs):
-
-        self.init_matplotlib()
         self.output_fn = output_fn
         self.datasets = datasets
 
-        self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
-
-        self.props = props
+        self.props = props if props else {}
         self.props.update(kwargs.get('post_props', {}))
         self.pre_props = kwargs.get('pre_props', {})
 
@@ -225,11 +233,10 @@ class GenericPlot(BasePlot):
                                  **dataset.get('props', {}))
             elif plot_type == 'fill_between':
                 self.ax.fill_between(x=dataset['x'],
-                                     y1=dataset['y']-dataset['dy'][0],
+                                     y1=dataset['y'] - dataset['dy'][0],
                                      y2=dataset['y'] + dataset['dy'],
                                      #label=dataset.get('label',''),
                                      **dataset.get('props', {}))
-
         self.ax.legend()
 
     def finalize(self):

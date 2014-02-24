@@ -197,8 +197,8 @@ class PDF(object):
         #print "Assuming member 9 to x are par variations"
 
         for member in range(9, self._varpdf[flavor].shape[0]):
-        #if member in [11,12]:
-        #continue
+            #if member in [10,]:
+                #continue
         #for member in range(9,):
             par_uncert_up = numpy.maximum(par_uncert_up,
                                           self._varpdf[flavor][member] -
