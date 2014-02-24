@@ -31,9 +31,9 @@ pdf_fill_kwargs = [
     {
         'facecolor': 'none',
         'alpha': 1.0,
-        'edgecolor': 'DarkBlue',
+        'edgecolor': 'Green',
         'linewidth': 1.0,
-        'hatch': '//',
+        'hatch': '\\\\',
     },
     {
         'facecolor': 'none',
@@ -490,8 +490,8 @@ class SimplePDFRatioPlot(BasePlot):
         self.ax1.minorticks_on()
         self.ax1.set_xlim(1E-4, 0.95)
         self.ax1.set_ylim(ymin=0.)
-        if self.flavor == 8:
-            self.ax1.set_ylim(ymax=0.6)
+        #if self.flavor == 8:
+        #    self.ax1.set_ylim(ymax=0.6)
 
         self.ax1.legend(loc='best', prop={'size': 14})
         # minorLocator   = MultipleLocator(0.1)
@@ -505,7 +505,7 @@ class SimplePDFRatioPlot(BasePlot):
         self.ax2.minorticks_on()
         self.ax2.autoscale(tight=True)
         self.ax2.set_xlim(1E-4, 0.95)
-        self.ax2.set_ylim(-0.249, 0.249)
+        self.ax2.set_ylim(-0.49, 0.49)
 
         self.ax2.legend(loc='best', prop={'size': 14})
         # minorLocator   = MultipleLocator(0.1)
