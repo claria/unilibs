@@ -87,13 +87,16 @@ def main():
                         nargs='+',
                         help="Plot Output format")
 
-    parser.add_argument('--xscale', type=str, default='log', choices=['linear', 'log'],
+    parser.add_argument('--xscale', type=str, default='log',
+                        choices=['linear', 'log'],
                         help='Xscale : log or linear')
 
-    parser.add_argument('--yscale', type=str, default='linear', choices=['linear', 'log'],
+    parser.add_argument('--yscale', type=str, default='linear',
+                        choices=['linear', 'log'],
                         help='Yscale : log or linear')
 
-    parser.add_argument('--uncertainty', type=str, default='default', choices=['default', 'experimental', 'herapdf', 'none'],
+    parser.add_argument('--uncertainty', type=str, default='default',
+                        choices=['default', 'experimental', 'herapdf', 'none'],
                         help='Set wished uncertainty')
 
     parser.add_argument('--aroundunity', action='store_true',
@@ -112,7 +115,6 @@ def main():
                         q2=args['q2'],
                         x_range=np.logspace(-4., -0.0001, 501)))
 
-
     if args['plot'] == 'pdf':
         for flavor in args['flavors']:
             kwargs = args
@@ -126,27 +128,28 @@ def main():
                                     )
             pdfplot.do_plot()
 
-    elif args['plot'] == 'ratio':
-        for flavor in args['flavors']:
-            kwargs = args.copy()
-            print 'ka;sdfj', kwargs['aroundunity']
-            output_fn = "{0}/{3}/{0}_{1}_{2}".format(pdfs[0].label,
-                                                     flavor,
-                                                     str(kwargs['q2']).replace('.', '_'),
-                                                     kwargs['plot'])
-
-            ratioplot = SimpleRatioPlot(pdfs, flavor, kwargs.pop('q2'),
-                                        output_fn=output_fn,
-                                        output_ext=kwargs.pop('output_type'),
-                                        uncertainty=kwargs.pop('uncertainty'),
-                                        **kwargs
-                                        )
-            ratioplot.do_plot()
+    # elif args['plot'] == 'ratio':
+    #     for flavor in args['flavors']:
+    #         kwargs = args.copy()
+    #         print 'ka;sdfj', kwargs['aroundunity']
+    #         output_fn = "{0}/{3}/{0}_{1}_{2}".format(pdfs[0].label,
+    #                                                  flavor,
+    #                                                  str(kwargs['q2']).replace('.', '_'),
+    #                                                  kwargs['plot'])
+    #
+    #         ratioplot = SimpleRatioPlot(pdfs, flavor, kwargs.pop('q2'),
+    #                                     output_fn=output_fn,
+    #                                     output_ext=kwargs.pop('output_type'),
+    #                                     uncertainty=kwargs.pop('uncertainty'),
+    #                                     **kwargs
+    #                                     )
+    #         ratioplot.do_plot()
 
     elif args['plot'] == 'pdfratio':
         for flavor in args['flavors']:
             output_fn = "{0}/{3}/{0}_{1}_{2}".format(pdfs[0].label,
-                                                     flavor, str(args['q2']).replace('.', '_'),
+                                                     flavor,
+                                                     str(args['q2']).replace('.', '_'),
                                                      args['plot'])
             pdfratioplot = SimplePDFRatioPlot(pdfs, flavor, args['q2'],
                                               output_fn=output_fn,
@@ -167,25 +170,26 @@ def main():
             output_ext=args['output_type'])
         pdfoverviewplot.do_plot()
 
-    elif args['plot'] == 'ratiooverview':
-        output_fn = "{0}/{3}/{0}_{2}.{3}".format(pdfs[0].label,
-                                                 None,
-                                                 str(args['q2']).replace('.', '_'),
-                                                 args['output_type'],
-                                                 args['plot'])
-        ratioplot = SimpleRatioOverviewPlot(pdfs, args['flavors'], args['q2'],
-                                            output_fn=output_fn, )
-        ratioplot.do_plot()
-
-    elif args['plot'] == 'dualpdf':
-        for flavor in args['flavors']:
-            output_fn = "{0}/{3}/{0}_{1}_{2}.{3}".format(pdfs[0].label,
-                                                         flavor, str(args['q2']).replace('.', '_'),
-                                                         args['output_type'],
-                                                         args['plot'])
-            dualpdfplot = SimpleDualPDFPlot(pdfs, flavor, args['q2'],
-                                            output_fn=output_fn, )
-            dualpdfplot.do_plot()
+    # elif args['plot'] == 'ratiooverview':
+    #     output_fn = "{0}/{3}/{0}_{2}.{3}".format(pdfs[0].label,
+    #                                              None,
+    #                                              str(args['q2']).replace('.', '_'),
+    #                                              args['output_type'],
+    #                                              args['plot'])
+    #     ratioplot = SimpleRatioOverviewPlot(pdfs, args['flavors'], args['q2'],
+    #                                         output_fn=output_fn, )
+    #     ratioplot.do_plot()
+    #
+    # elif args['plot'] == 'dualpdf':
+    #     for flavor in args['flavors']:
+    #         output_fn = "{0}/{3}/{0}_{1}_{2}.{3}".format(pdfs[0].label,
+    #                                                      flavor,
+    #                                                      str(args['q2']).replace('.', '_'),
+    #                                                      args['output_type'],
+    #                                                      args['plot'])
+    #         dualpdfplot = SimpleDualPDFPlot(pdfs, flavor, args['q2'],
+    #                                         output_fn=output_fn, )
+    #         dualpdfplot.do_plot()
 
 
 def plot_simple_pdf(ax,
@@ -457,6 +461,9 @@ class SimplePDFRatioPlot(BasePlot):
         self.flavor = flavor
         self.q2 = q2
         self.props = kwargs
+        gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1], hspace=0.05)
+        self.ax1 = plt.subplot(gs[0])
+        self.ax2 = plt.subplot(gs[1])
 
     def init_matplotlib(self):
         super(SimplePDFRatioPlot, self).init_matplotlib()
@@ -464,9 +471,6 @@ class SimplePDFRatioPlot(BasePlot):
         matplotlib.rcParams['xtick.minor.pad'] = 8
 
     def prepare(self):
-        gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1], hspace=0.05)
-        self.ax1 = plt.subplot(gs[0])
-        self.ax2 = plt.subplot(gs[1])
 
         self.set_style(style='cmsprel', show_cme=False, ax=self.ax1)
         self.set_preset_text(self.ax1,
@@ -528,9 +532,9 @@ class SimplePDFPlot(BasePlot):
         self.pdfs = pdfs
         self.q2 = q2
         self.flavor = flavor
+        self.ax = self.fig.add_subplot(111)
 
     def prepare(self):
-        self.ax = self.fig.add_subplot(111)
         self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
         self.set_preset_text(self.ax,
                              r"{0}, $Q^2 = {1}\/\mathrm{{GeV}}^2$".format(
@@ -565,51 +569,51 @@ class SimplePDFPlot(BasePlot):
         plt.close(self.fig)
 
 
-class SimpleRatioPlot(BasePlot):
-    def __init__(self, pdfs, flavor, q2, **kwargs):
-        super(SimpleRatioPlot, self).__init__(output_fn=kwargs['output_fn'],
-                                                 output_ext=kwargs['output_ext'],
-                                                 style=kwargs.get('style', 'none'))
-        self.pdfs = pdfs
-        self.q2 = q2
-        self.flavor = flavor
-        self.props = kwargs
-
-    def prepare(self):
-        self.ax = self.fig.add_subplot(111)
-        self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
-        self.set_preset_text(self.ax,
-                             r"{0}, $Q^2={1}\/\mathrm{{GeV}}^2$".format(
-                                 helper.get_partonlabel(self.flavor),
-                                 helper.get_q2label(self.q2)), )
-
-    def produce(self):
-        plot_simple_ratio(self.ax, self.pdfs, self.flavor, legend=True,
-                          uncertainty=self.props.get('uncertainty', 'default'),
-                          trueratio= not self.props.get('aroundunity', False),
-                          )
-        print 'asdf', self.props['aroundunity']
-
-        self.ax.set_xscale('linear')
-        self.ax.set_xlabel("$x$")
-        self.ax.set_ylabel(r'Fractional uncertainties')
-        self.ax.minorticks_on()
-        self.ax.autoscale(tight=True)
-        self.ax.set_xlim(1E-4, 0.98)
-        self.ax.set_ylim(0.0, 2.0)
-
-        self.ax.legend(loc='upper left', prop={'size': 14})
-        # minorLocator   = MultipleLocator(0.1)
-        self.ax.yaxis.grid(True, which='major')
-        self.ax.xaxis.grid(True, which='major')
-
-    def finalize(self):
-        """
-        Apply final settings, autoscale etc
-        Save the plot
-        """
-        self._save_fig()
-        plt.close(self.fig)
+# class SimpleRatioPlot(BasePlot):
+#     def __init__(self, pdfs, flavor, q2, **kwargs):
+#         super(SimpleRatioPlot, self).__init__(output_fn=kwargs['output_fn'],
+#                                                  output_ext=kwargs['output_ext'],
+#                                                  style=kwargs.get('style', 'none'))
+#         self.pdfs = pdfs
+#         self.q2 = q2
+#         self.flavor = flavor
+#         self.props = kwargs
+#
+#     def prepare(self):
+#         self.ax = self.fig.add_subplot(111)
+#         self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
+#         self.set_preset_text(self.ax,
+#                              r"{0}, $Q^2={1}\/\mathrm{{GeV}}^2$".format(
+#                                  helper.get_partonlabel(self.flavor),
+#                                  helper.get_q2label(self.q2)), )
+#
+#     def produce(self):
+#         plot_simple_ratio(self.ax, self.pdfs, self.flavor, legend=True,
+#                           uncertainty=self.props.get('uncertainty', 'default'),
+#                           trueratio= not self.props.get('aroundunity', False),
+#                           )
+#         print 'asdf', self.props['aroundunity']
+#
+#         self.ax.set_xscale('linear')
+#         self.ax.set_xlabel("$x$")
+#         self.ax.set_ylabel(r'Fractional uncertainties')
+#         self.ax.minorticks_on()
+#         self.ax.autoscale(tight=True)
+#         self.ax.set_xlim(1E-4, 0.98)
+#         self.ax.set_ylim(0.0, 2.0)
+#
+#         self.ax.legend(loc='upper left', prop={'size': 14})
+#         # minorLocator   = MultipleLocator(0.1)
+#         self.ax.yaxis.grid(True, which='major')
+#         self.ax.xaxis.grid(True, which='major')
+#
+#     def finalize(self):
+#         """
+#         Apply final settings, autoscale etc
+#         Save the plot
+#         """
+#         self._save_fig()
+#         plt.close(self.fig)
 
 
 class SimplePDFOverviewPlot(BasePlot):
@@ -684,127 +688,127 @@ class SimplePDFOverviewPlot(BasePlot):
         plt.close(self.fig)
 
 
-class SimpleRatioOverviewPlot(BasePlot):
-    def __init__(self, pdfs, flavors, q2, **kwargs):
-        super(SimpleRatioOverviewPlot, self).__init__(**kwargs)
-        self.pdfs = pdfs
-        self.q2 = q2
-        self.flavors = flavors
+# class SimpleRatioOverviewPlot(BasePlot):
+#     def __init__(self, pdfs, flavors, q2, **kwargs):
+#         super(SimpleRatioOverviewPlot, self).__init__(**kwargs)
+#         self.pdfs = pdfs
+#         self.q2 = q2
+#         self.flavors = flavors
+#
+#     def prepare(self):
+#         self.ax = self.fig.add_subplot(111)
+#         self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
+#         self.set_preset_text(self.ax,
+#                              r" $Q^2={0}\/\mathrm{{GeV}}^2$".format(
+#                                  helper.get_q2label(self.q2)), )
+#
+#     def produce(self):
+#
+#         for flavor in self.flavors:
+#
+#             ref_pdf = self.pdfs[0]
+#             for n, pdf in enumerate(self.pdfs):
+#                 if pdf is ref_pdf:
+#                     continue
+#                 self.ax.plot(pdf.x, pdf.get_pdf_central(flavor) /
+#                                     ref_pdf.get_pdf_central(flavor),
+#                              linewidth=0.5,
+#                              linestyle='--',
+#                              label=str(flavor))
+#
+#         self.ax.set_xscale('log')
+#         self.ax.set_xlabel("$x$")
+#         self.ax.set_ylabel(r'Fractional uncertainties')
+#         self.ax.minorticks_on()
+#         self.ax.autoscale(tight=True)
+#         self.ax.set_xlim(3E-4, 0.98)
+#         self.ax.set_ylim(0.5, 1.5)
+#
+#         self.ax.legend(loc='best', prop={'size': 14})
+#         # minorLocator   = MultipleLocator(0.1)
+#         self.ax.yaxis.grid(True, which='major')
+#         self.ax.xaxis.grid(True, which='major')
+#
+#
+#     def finalize(self):
+#         """
+#         Apply final settings, autoscale etc
+#         Save the plot
+#         """
+#         self._save_fig()
+#         plt.close(self.fig)
 
-    def prepare(self):
-        self.ax = self.fig.add_subplot(111)
-        self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
-        self.set_preset_text(self.ax,
-                             r" $Q^2={0}\/\mathrm{{GeV}}^2$".format(
-                                 helper.get_q2label(self.q2)), )
 
-    def produce(self):
-
-        for flavor in self.flavors:
-
-            ref_pdf = self.pdfs[0]
-            for n, pdf in enumerate(self.pdfs):
-                if pdf is ref_pdf:
-                    continue
-                self.ax.plot(pdf.x, pdf.get_pdf_central(flavor) /
-                                    ref_pdf.get_pdf_central(flavor),
-                             linewidth=0.5,
-                             linestyle='--',
-                             label=str(flavor))
-
-        self.ax.set_xscale('log')
-        self.ax.set_xlabel("$x$")
-        self.ax.set_ylabel(r'Fractional uncertainties')
-        self.ax.minorticks_on()
-        self.ax.autoscale(tight=True)
-        self.ax.set_xlim(3E-4, 0.98)
-        self.ax.set_ylim(0.5, 1.5)
-
-        self.ax.legend(loc='best', prop={'size': 14})
-        # minorLocator   = MultipleLocator(0.1)
-        self.ax.yaxis.grid(True, which='major')
-        self.ax.xaxis.grid(True, which='major')
-
-
-    def finalize(self):
-        """
-        Apply final settings, autoscale etc
-        Save the plot
-        """
-        self._save_fig()
-        plt.close(self.fig)
-
-
-class SimpleDualPDFPlot(BasePlot):
-    def __init__(self, pdfs, flavor, q2, **kwargs):
-        super(SimpleDualPDFPlot, self).__init__(**kwargs)
-        self.pdfs = pdfs
-        self.flavor = flavor
-        self.q2 = q2
-
-    def init_matplotlib(self):
-        super(SimpleDualPDFPlot, self).init_matplotlib()
-        matplotlib.rcParams['xtick.major.pad'] = 6
-        matplotlib.rcParams['xtick.minor.pad'] = 8
-
-    def prepare(self):
-        gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1], hspace=0.05)
-        self.ax1 = plt.subplot(gs[0])
-        self.ax2 = plt.subplot(gs[1])
-
-        self.set_style(style='cmsprel', show_cme=False, ax=self.ax1)
-        self.set_preset_text(self.ax1,
-                             r'{0}, $Q^2={1}\mathrm{{GeV}}^2$'.format(
-                                 helper.get_partonlabel(self.flavor),
-                                 helper.get_q2label(self.q2)), )
-
-    def produce(self):
-        from matplotlib.ticker import MaxNLocator
-
-        plot_simple_ratio(self.ax1, [self.pdfs[0], ], self.flavor, legend=True)
-        plot_simple_ratio(self.ax2, [self.pdfs[
-                                         1], ], self.flavor, legend=False)
-
-        self.fig.text(0.0, 0.5, 'Fractional uncertaintie',
-                      ha='center', va='center',
-                      rotation='vertical')
-
-        self.ax1.set_xscale('log')
-        self.ax1.set_xlabel("$x$")
-        # self.ax1.set_ylabel(r'Fractional uncertainties')
-        self.ax1.minorticks_on()
-        self.ax1.autoscale(tight=True)
-        self.ax1.set_xlim(3E-4, 0.98)
-        self.ax1.set_ylim(0.801, 1.199)
-
-        self.ax1.legend(loc='upper left', prop={'size': 14})
-        # minorLocator   = MultipleLocator(0.1)
-        self.ax1.yaxis.set_major_locator(MaxNLocator(8, prune='both'))
-        self.ax1.yaxis.grid(True, which='major')
-        self.ax1.xaxis.grid(True, which='major')
-        self.ax1.xaxis.set_ticklabels([])
-
-        self.ax2.set_xscale('log')
-        self.ax2.set_xlabel("$x$")
-        # self.ax2.set_ylabel(r'Fractional uncertainties')
-        self.ax2.minorticks_on()
-        self.ax2.autoscale(tight=True)
-        self.ax2.set_xlim(3E-4, 0.98)
-        self.ax2.set_ylim(0.801, 1.199)
-
-        self.ax2.legend(loc='best', prop={'size': 14})
-        # minorLocator   = MultipleLocator(0.1)
-        self.ax2.yaxis.grid(True, which='major')
-        self.ax2.xaxis.grid(True, which='major')
-        self.ax2.yaxis.set_major_locator(MaxNLocator(8, prune='both'))
-
-    def finalize(self):
-        """
-        Apply final settings, autoscale etc
-        Save the plot
-        """
-        self._save_fig()
-        plt.close(self.fig)
+# class SimpleDualPDFPlot(BasePlot):
+#     def __init__(self, pdfs, flavor, q2, **kwargs):
+#         super(SimpleDualPDFPlot, self).__init__(**kwargs)
+#         self.pdfs = pdfs
+#         self.flavor = flavor
+#         self.q2 = q2
+#
+#     def init_matplotlib(self):
+#         super(SimpleDualPDFPlot, self).init_matplotlib()
+#         matplotlib.rcParams['xtick.major.pad'] = 6
+#         matplotlib.rcParams['xtick.minor.pad'] = 8
+#
+#     def prepare(self):
+#         gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1], hspace=0.05)
+#         self.ax1 = plt.subplot(gs[0])
+#         self.ax2 = plt.subplot(gs[1])
+#
+#         self.set_style(style='cmsprel', show_cme=False, ax=self.ax1)
+#         self.set_preset_text(self.ax1,
+#                              r'{0}, $Q^2={1}\mathrm{{GeV}}^2$'.format(
+#                                  helper.get_partonlabel(self.flavor),
+#                                  helper.get_q2label(self.q2)), )
+#
+#     def produce(self):
+#         from matplotlib.ticker import MaxNLocator
+#
+#         plot_simple_ratio(self.ax1, [self.pdfs[0], ], self.flavor, legend=True)
+#         plot_simple_ratio(self.ax2, [self.pdfs[
+#                                          1], ], self.flavor, legend=False)
+#
+#         self.fig.text(0.0, 0.5, 'Fractional uncertaintie',
+#                       ha='center', va='center',
+#                       rotation='vertical')
+#
+#         self.ax1.set_xscale('log')
+#         self.ax1.set_xlabel("$x$")
+#         # self.ax1.set_ylabel(r'Fractional uncertainties')
+#         self.ax1.minorticks_on()
+#         self.ax1.autoscale(tight=True)
+#         self.ax1.set_xlim(3E-4, 0.98)
+#         self.ax1.set_ylim(0.801, 1.199)
+#
+#         self.ax1.legend(loc='upper left', prop={'size': 14})
+#         # minorLocator   = MultipleLocator(0.1)
+#         self.ax1.yaxis.set_major_locator(MaxNLocator(8, prune='both'))
+#         self.ax1.yaxis.grid(True, which='major')
+#         self.ax1.xaxis.grid(True, which='major')
+#         self.ax1.xaxis.set_ticklabels([])
+#
+#         self.ax2.set_xscale('log')
+#         self.ax2.set_xlabel("$x$")
+#         # self.ax2.set_ylabel(r'Fractional uncertainties')
+#         self.ax2.minorticks_on()
+#         self.ax2.autoscale(tight=True)
+#         self.ax2.set_xlim(3E-4, 0.98)
+#         self.ax2.set_ylim(0.801, 1.199)
+#
+#         self.ax2.legend(loc='best', prop={'size': 14})
+#         # minorLocator   = MultipleLocator(0.1)
+#         self.ax2.yaxis.grid(True, which='major')
+#         self.ax2.xaxis.grid(True, which='major')
+#         self.ax2.yaxis.set_major_locator(MaxNLocator(8, prune='both'))
+#
+#     def finalize(self):
+#         """
+#         Apply final settings, autoscale etc
+#         Save the plot
+#         """
+#         self._save_fig()
+#         plt.close(self.fig)
 
 
 if __name__ == '__main__':
