@@ -56,7 +56,10 @@ class BasePlot(object):
         if not yet existing.
         """
         #Check if directory exists and create if not
+        print self.output_fn
         directory = os.path.dirname(self.output_fn)
+
+        print directory
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
         for ext in self.output_ext:

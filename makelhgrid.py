@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description='Create LHgrid File.')
     parser.add_argument("-i", "--input_folder", help="Input Folder")
     parser.add_argument("-o", "--output_filepath", help="Output Folder", default='./test.LHgrid')
+    parser.add_argument("-l", "--limit_members", help="Limit Members Folder", default=0, type=int)
     parser.add_argument("--eig", help="Produce eigenvector pdf", action='store_true')
 
     args = vars(parser.parse_args())
@@ -56,6 +57,9 @@ def produce_eig_lhgrid(**args):
 def produce_general_lhgrid(**args):
 
     member_folders = sorted(glob.glob(args['input_folder'] + '/*'))
+
+    if args['limit_members'] != 0:
+        member_folders = member_folders[0:args['limit_members']]
 
     metadata = {'alphas' : [], 'order' : [], 'npar' : []}
     valid_pdfs = []

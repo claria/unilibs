@@ -2,13 +2,20 @@ def get_pdflabel(s):
     pdf_labels = {}
     if s in pdf_labels:
         return pdf_labels[s]
+    elif 'HERAMCDR_DISCMSJETSCMSWASYM' in s:
+        return 'HERA DIS + CMS WASYM/Jets'
+    elif 'HERAMCDR_DISCMSJETS' in s:
+        return 'HERA DIS + CMS Jets'
+    elif 'HERAMCDR_DISCMSWASYM' in s:
+        return 'HERA DIS + CMS W ASYM'
+    elif 'HERAMCDR_DIS' in s:
+        return 'HERA DIS'
     elif 'HERADISCMSJETS' in s:
         return 'HERA DIS + CMS Jets'
     elif 'HERADISATLASJETS' in s:
         return 'HERA DIS + Atlas Jets'
     elif 'HERADISCMSATLASJETS' in s:
         return 'HERA DIS + Atlas + CMS Jets'
-
     elif 'HERADIS' in s:
         return 'HERA DIS'
     else:
