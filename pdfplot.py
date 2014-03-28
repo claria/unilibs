@@ -654,13 +654,13 @@ class SimplePDFOverviewPlot(BasePlot):
                             legend=False,
                             overview_scaling=True,
                             uncertainty='default')
-            plot_simple_pdf(self.ax, [self.pdfs[1], ],
-                            flavor, legend=False,
-                            overview_scaling=True,
-                            linestyle='-',
-                            linewidth=2,
-                            uncertainty='none',
-                            color='black')
+            #plot_simple_pdf(self.ax, [self.pdfs[1], ],
+            #                flavor, legend=False,
+            #                overview_scaling=True,
+            #                linestyle='-',
+            #                linewidth=2,
+            #                uncertainty='none',
+            #                color='black')
 
             s = helper.get_partonlabel(flavor, short=True)
             self.ax.text(s=s, transform=self.ax.transData, color='Black',
@@ -672,18 +672,18 @@ class SimplePDFOverviewPlot(BasePlot):
         self.ax.minorticks_on()
         self.ax.autoscale(tight=True)
         self.ax.set_xlim(1E-4, 0.98)
-        self.ax.set_ylim(ymin=0., ymax=1.0)
+        self.ax.set_ylim(ymin=0., ymax=2.0)
         #Get artists and labels for legend and chose which ones to display
-        handles, labels = self.ax.get_legend_handles_labels()
-        #Create custom artists
-        pdf1 = matplotlib.patches.Rectangle((0, 0), 1, 1,
-                                            **pdf_fill_kwargs[0])
-        pdf2 = plt.Line2D((0, 0), (1, 1), color='black', linestyle='-')
-        #Create legend from custom artist/label lists
-        self.ax.legend(handles + [pdf1, pdf2],
-                       labels + [helper.get_pdflabel(self.pdfs[0].label),
-                                 helper.get_pdflabel(self.pdfs[1].label)],
-                       loc='best', prop={'size': 14})
+        #handles, labels = self.ax.get_legend_handles_labels()
+        ##Create custom artists
+        #pdf1 = matplotlib.patches.Rectangle((0, 0), 1, 1,
+        #                                    **pdf_fill_kwargs[0])
+        #pdf2 = plt.Line2D((0, 0), (1, 1), color='black', linestyle='-')
+        ##Create legend from custom artist/label lists
+        #self.ax.legend(handles + [pdf1, pdf2],
+        #               labels + [helper.get_pdflabel(self.pdfs[0].label),
+        #                         helper.get_pdflabel(self.pdfs[1].label)],
+        #               loc='best', prop={'size': 14})
 
         # minorLocator   = MultipleLocator(0.1)
         self.ax.yaxis.grid(True, which='major')
