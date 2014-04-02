@@ -100,7 +100,7 @@ class BasePlot(object):
 
         ax.text(s=text, transform=ax.transAxes, color='Black', **kwargs)
 
-    def set_style(self, ax, style, show_cme=True):
+    def set_style(self, ax, style, show_cme=False):
         """
         Some preset styles
         """
