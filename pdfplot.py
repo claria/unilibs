@@ -1,7 +1,7 @@
 #! /usr/bin/env python2
 import argparse
 import sys
-
+import os
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -31,16 +31,16 @@ pdf_fill_kwargs = [
     {
         'facecolor': 'none',
         'alpha': 1.0,
-        'edgecolor': 'DarkBlue',
+        'edgecolor': 'Green',
         'linewidth': 1.0,
-        'hatch': '//',
+        'hatch': '\\\\',
     },
     {
         'facecolor': 'none',
         'alpha': 1.0,
         'edgecolor': 'Gold',
         'linewidth': 1.0,
-        'hatch': '//',
+        'hatch': 'x',
     },
 
 
@@ -80,6 +80,10 @@ def main():
     parser.add_argument("--q2", type=float,
                         default=1.9, help="Scale Q^2 of the PDF to evolve to")
 
+    parser.add_argument("-o", "--output_folder",
+                        default='./',
+                        help="Output folder to save plots.")
+
     parser.add_argument("-t", "--output_type",
                         default=['pdf'],
                         type=str,
@@ -102,7 +106,7 @@ def main():
     parser.add_argument('--aroundunity', action='store_true',
                         help='Center uncertainties around unity')
 
-    args, unknowns = parser.parse_known_args()
+    args = parser.parse_args()
     args = vars(args)
 
     lhgrid_filenames = args['pdfsets']
@@ -115,19 +119,19 @@ def main():
                         q2=args['q2'],
                         x_range=np.logspace(-4., -0.0001, 501)))
 
-    if args['plot'] == 'pdf':
-        for flavor in args['flavors']:
-            kwargs = args
-            output_fn = "{0}/{3}/{0}_{1}_{2}".format(pdfs[0].label,
-                                                     flavor,
-                                                     str(kwargs['q2']).replace('.', '_'),
-                                                     kwargs['plot'])
-            pdfplot = SimplePDFPlot(pdfs, flavor, kwargs['q2'],
-                                    output_fn=output_fn,
-                                    output_ext=kwargs['output_type'],
-                                    )
-            pdfplot.do_plot()
-
+    # if args['plot'] == 'pdf':
+    #     for flavor in args['flavors']:
+    #         kwargs = args
+    #         output_fn = "{0}/{3}/{0}_{1}_{2}".format(pdfs[0].label,
+    #                                                  flavor,
+    #                                                  str(kwargs['q2']).replace('.', '_'),
+    #                                                  kwargs['plot'])
+    #         pdfplot = SimplePDFPlot(pdfs, flavor, kwargs['q2'],
+    #                                 output_fn=output_fn,
+    #                                 output_ext=kwargs['output_type'],
+    #                                 )
+    #         pdfplot.do_plot()
+    #
     # elif args['plot'] == 'ratio':
     #     for flavor in args['flavors']:
     #         kwargs = args.copy()
@@ -145,12 +149,14 @@ def main():
     #                                     )
     #         ratioplot.do_plot()
 
-    elif args['plot'] == 'pdfratio':
+    if args['plot'] == 'pdfratio':
         for flavor in args['flavors']:
-            output_fn = "{0}/{3}/{0}_{1}_{2}".format(pdfs[0].label,
-                                                     flavor,
-                                                     str(args['q2']).replace('.', '_'),
-                                                     args['plot'])
+            output_fn = os.path.join(args['output_folder'], 
+                                 "{0}/{3}/{0}_{1}_{2}".format(pdfs[0].label,
+                                                   flavor,
+                                                   str(args['q2']).replace('.', '_'),
+                                                   args['plot'])
+                                 )
             pdfratioplot = SimplePDFRatioPlot(pdfs, flavor, args['q2'],
                                               output_fn=output_fn,
                                               output_ext=args['output_type'],
@@ -160,10 +166,12 @@ def main():
             pdfratioplot.do_plot()
 
     elif args['plot'] == 'pdfoverview':
-        output_fn = "{0}/{3}/{0}_{2}".format(pdfs[0].label,
-                                             None,
-                                             str(args['q2']).replace('.', '_'),
-                                             args['plot'])
+        output_fn = os.path.join(args['output_folder'],
+                                 "{0}/{3}/{0}_{2}".format(pdfs[0].label,
+                                                   'ov',
+                                                   str(args['q2']).replace('.', '_'),
+                                                   args['plot'])
+                                 )
         pdfoverviewplot = SimplePDFOverviewPlot(
             pdfs, args['flavors'], args['q2'],
             output_fn=output_fn,
@@ -213,7 +221,7 @@ def plot_simple_pdf(ax,
 
         if uncertainty is 'none':
             if legend is True:
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label=helper.get_pdflabel(
                                                      pdf.label),
                                                  fill=False,
@@ -223,25 +231,25 @@ def plot_simple_pdf(ax,
 
         # HERAPDF style plotting
         if uncertainty == 'herapdf':
-            p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+            p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                              label=helper.get_pdflabel(
                                                  pdf.label),
                                              color='white', )
             ax.add_patch(p)
             # Add boxes with labels
             if legend is True:
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label='Exp. Uncert.',
                                                  **herapdf_fill_kwargs[
                                                      'exp'])
                 ax.add_patch(p)
 
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label='Mod. Uncert.',
                                                  **herapdf_fill_kwargs[
                                                      'mod'])
                 ax.add_patch(p)
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label='Par. Uncert.',
                                                  **herapdf_fill_kwargs[
                                                      'par'])
@@ -308,7 +316,7 @@ def plot_simple_pdf(ax,
                 linewidth = pdf_fill_kwargs[n]['linewidth']
                 edgecolor = pdf_fill_kwargs[n]['edgecolor']
 
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label=helper.get_pdflabel(
                                                      pdf.label),
                                                  fill=fill,
@@ -335,15 +343,15 @@ def plot_simple_ratio(ax, pdfs, flavor, legend=False, trueratio=False,
         if uncertainty == 'herapdf':
             # Add boxes with labels
             if legend is True:
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label='Exp. Uncert.',
                                                  **herapdf_fill_kwargs['exp'])
                 ax.add_patch(p)
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label='Mod. Uncert.',
                                                  **herapdf_fill_kwargs['mod'])
                 ax.add_patch(p)
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label='Par. Uncert.',
                                                  **herapdf_fill_kwargs['par'])
                 ax.add_patch(p)
@@ -440,7 +448,7 @@ def plot_simple_ratio(ax, pdfs, flavor, legend=False, trueratio=False,
                 linewidth = pdf_fill_kwargs[n]['linewidth']
                 edgecolor = pdf_fill_kwargs[n]['edgecolor']
 
-                p = matplotlib.patches.Rectangle((1, 1), 0, 0,
+                p = matplotlib.patches.Rectangle((0, 0), 1, 1,
                                                  label=helper.get_pdflabel(
                                                      pdf.label),
                                                  fill=fill,
@@ -474,7 +482,7 @@ class SimplePDFRatioPlot(BasePlot):
 
         self.set_style(style='cmsprel', show_cme=False, ax=self.ax1)
         self.set_preset_text(self.ax1,
-                             r'{0}, $Q^2={1}\mathrm{{GeV}}^2$'.format(
+                             r'{0}, $Q^2{{=}}{1}\,\mathrm{{GeV}}^2$'.format(
                                  helper.get_partonlabel(self.flavor),
                                  helper.get_q2label(self.q2)), )
 
@@ -484,18 +492,20 @@ class SimplePDFRatioPlot(BasePlot):
         plot_simple_pdf(self.ax1, self.pdfs, self.flavor, legend=True,
                         uncertainty=self.props.get('uncertainty', 'default'))
         #Plot Ratio in ax2
-        plot_simple_ratio(self.ax2, self.pdfs, self.flavor, trueratio=False,
+        plot_simple_ratio(self.ax2, self.pdfs, self.flavor,
                           uncertainty=self.props.get('uncertainty', 'default'),
+                          #trueratio= not self.props.get('aroundunity', False),
+                          trueratio = False,
                           y_shift=-1.0)
         self.ax1.set_xscale(self.props.get('xscale', 'log'))
         self.ax1.set_yscale(self.props.get('yscale', 'linear'), nonposy='clip')
-        self.ax1.set_xlabel("$x$")
-        self.ax1.set_ylabel(r'$xf(x,Q^2)$')
+        self.ax1.set_xlabel("$x$", ha='right')
+        self.ax1.set_ylabel(r'$xf(x,Q^2)$', y = 1.0, size='large', ha='right')
         self.ax1.minorticks_on()
         self.ax1.set_xlim(1E-4, 0.95)
         self.ax1.set_ylim(ymin=0.)
-        if self.flavor == 8:
-            self.ax1.set_ylim(ymax=0.6)
+        #if self.flavor == 8:
+        #    self.ax1.set_ylim(ymax=0.6)
 
         self.ax1.legend(loc='best', prop={'size': 14})
         # minorLocator   = MultipleLocator(0.1)
@@ -504,12 +514,12 @@ class SimplePDFRatioPlot(BasePlot):
         self.ax1.xaxis.set_ticklabels([])
 
         self.ax2.set_xscale(self.props.get('xscale', 'log'))
-        self.ax2.set_xlabel("$x$")
+        self.ax2.set_xlabel("$x$", x=1.0, ha='right', size='x-large')
         self.ax2.set_ylabel(r'Fract. Uncert.')
         self.ax2.minorticks_on()
         self.ax2.autoscale(tight=True)
         self.ax2.set_xlim(1E-4, 0.95)
-        self.ax2.set_ylim(-0.249, 0.249)
+        self.ax2.set_ylim(-0.49, 0.49)
 
         self.ax2.legend(loc='best', prop={'size': 14})
         # minorLocator   = MultipleLocator(0.1)
@@ -546,7 +556,7 @@ class SimplePDFPlot(BasePlot):
                         uncertainty=True)
 
         self.ax.set_xscale('log')
-        self.ax.set_xlabel("$x$")
+        self.ax.set_xlabel("$x$", ha='right')
         self.ax.set_ylabel(r'$xf(x,Q^2)$')
         self.ax.minorticks_on()
         self.ax.set_xlim(1E-3, 0.98)
@@ -623,7 +633,7 @@ class SimplePDFOverviewPlot(BasePlot):
         self.q2 = q2
         self.flavors = flavors
 
-        self.p_label_pos = {0: {'x': 3E-3, 'y': 0.5, 'va': 'bottom', 'ha': 'left'},
+        self.p_label_pos = {0: {'x': 3E-3, 'y': 0.55, 'va': 'bottom', 'ha': 'left'},
                             7: {'x': 0.2, 'y': 0.34, 'va': 'bottom', 'ha': 'left'},
                             8: {'x': 0.07, 'y': 0.6, 'va': 'bottom', 'ha': 'left'},
                             9: {'x': 4E-4, 'y': 0.42, 'va': 'bottom', 'ha': 'left'},
@@ -644,36 +654,36 @@ class SimplePDFOverviewPlot(BasePlot):
                             legend=False,
                             overview_scaling=True,
                             uncertainty='default')
-            plot_simple_pdf(self.ax, [self.pdfs[1], ],
-                            flavor, legend=False,
-                            overview_scaling=True,
-                            linestyle='-',
-                            linewidth=2,
-                            uncertainty='none',
-                            color='black')
+            #plot_simple_pdf(self.ax, [self.pdfs[1], ],
+            #                flavor, legend=False,
+            #                overview_scaling=True,
+            #                linestyle='-',
+            #                linewidth=2,
+            #                uncertainty='none',
+            #                color='black')
 
             s = helper.get_partonlabel(flavor, short=True)
             self.ax.text(s=s, transform=self.ax.transData, color='Black',
                          **self.p_label_pos[flavor])
 
         self.ax.set_xscale('log')
-        self.ax.set_xlabel("$x$")
+        self.ax.set_xlabel("$x$", ha='right')
         self.ax.set_ylabel(r'$xf(x,Q^2)$')
         self.ax.minorticks_on()
         self.ax.autoscale(tight=True)
         self.ax.set_xlim(1E-4, 0.98)
-        self.ax.set_ylim(ymin=0., ymax=1.0)
+        self.ax.set_ylim(ymin=0., ymax=2.0)
         #Get artists and labels for legend and chose which ones to display
-        handles, labels = self.ax.get_legend_handles_labels()
-        #Create custom artists
-        pdf1 = matplotlib.patches.Rectangle((1, 1), 0, 0,
-                                            **pdf_fill_kwargs[0])
-        pdf2 = plt.Line2D((0, 1), (0, 0), color='black', linestyle='-')
-        #Create legend from custom artist/label lists
-        self.ax.legend(handles + [pdf1, pdf2],
-                       labels + [helper.get_pdflabel(self.pdfs[0].label),
-                                 helper.get_pdflabel(self.pdfs[1].label)],
-                       loc='best', prop={'size': 14})
+        #handles, labels = self.ax.get_legend_handles_labels()
+        ##Create custom artists
+        #pdf1 = matplotlib.patches.Rectangle((0, 0), 1, 1,
+        #                                    **pdf_fill_kwargs[0])
+        #pdf2 = plt.Line2D((0, 0), (1, 1), color='black', linestyle='-')
+        ##Create legend from custom artist/label lists
+        #self.ax.legend(handles + [pdf1, pdf2],
+        #               labels + [helper.get_pdflabel(self.pdfs[0].label),
+        #                         helper.get_pdflabel(self.pdfs[1].label)],
+        #               loc='best', prop={'size': 14})
 
         # minorLocator   = MultipleLocator(0.1)
         self.ax.yaxis.grid(True, which='major')

@@ -5,6 +5,10 @@ from contextlib import contextmanager
 @contextmanager
 def stdout_redirected(to=os.devnull):
     '''
+    Redirects output of called c++/python library to some other fd
+
+    Howto:
+
     import os
 
     with stdout_redirected(to=filename):
