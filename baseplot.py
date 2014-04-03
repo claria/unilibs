@@ -72,16 +72,17 @@ class BasePlot(object):
         Initialize matplotlib with following rc
         """
         matplotlib.rcParams['lines.linewidth'] = 2
-        matplotlib.rcParams['font.family'] = 'sans-serif'
+        matplotlib.rcParams['font.family'] = 'serif'
+        matplotlib.rcParams['font.serif'] = 'Computer Modern'
         matplotlib.rcParams['font.style'] = 'normal'
         matplotlib.rcParams['font.size'] = 20.
         matplotlib.rcParams['legend.fontsize'] = 14.
-        matplotlib.rcParams['text.usetex'] = False
+        matplotlib.rcParams['text.usetex'] = True
         # Axes
         matplotlib.rcParams['axes.linewidth'] = 2.0
         # Saving
         matplotlib.rcParams['savefig.bbox'] = 'tight'
-        matplotlib.rcParams['savefig.dpi'] = 90
+        matplotlib.rcParams['savefig.dpi'] = 150
         matplotlib.rcParams['savefig.format'] = 'png'
 
     #
@@ -99,7 +100,7 @@ class BasePlot(object):
             kwargs.update({'x': 1.0, 'y': 1.01, 'va': 'bottom',
                            'ha': 'right'})
         else:
-            raise Exception()
+            raise Exception('Unknown loc.')
 
         ax.text(s=text, transform=ax.transAxes, color='Black', **kwargs)
 
@@ -110,7 +111,7 @@ class BasePlot(object):
         if style == 'none':
             pass
         elif style == 'cmsprel':
-            self.set_preset_text(ax, "CMS Preliminary", loc='topleft')
+            self.set_preset_text(ax, r"\textbf{CMS Preliminary}", loc='topleft')
             if show_cme:
                 self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
                                      loc='topleft', )

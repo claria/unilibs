@@ -482,7 +482,7 @@ class SimplePDFRatioPlot(BasePlot):
 
         self.set_style(style='cmsprel', show_cme=False, ax=self.ax1)
         self.set_preset_text(self.ax1,
-                             r'{0}, $Q^2{{=}}{1}\mathrm{{GeV}}^2$'.format(
+                             r'{0}, $Q^2{{=}}{1}\,\mathrm{{GeV}}^2$'.format(
                                  helper.get_partonlabel(self.flavor),
                                  helper.get_q2label(self.q2)), )
 

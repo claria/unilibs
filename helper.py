@@ -19,7 +19,7 @@ def get_pdflabel(s):
     elif 'HERADIS' in s:
         return 'HERA DIS'
     else:
-        return s
+        return s.replace('_','\_')
 
 
 def get_partonlabel(s, short=False):
@@ -67,7 +67,8 @@ def get_q2label(q2):
 
 def get_plot_scalefactor(flavor, q2=1.9):
 
-    scalefactors = { 0 : { 1.9 : 0.2},
+    scalefactors = {
+            0 : { 1.9 : 0.2},
             1  : { 1.9 : 1.0},
             2  : { 1.9 : 1.0},
             7  : { 1.9 : 1.0},
