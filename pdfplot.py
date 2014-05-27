@@ -480,9 +480,9 @@ class SimplePDFRatioPlot(BasePlot):
 
     def prepare(self):
 
-        self.set_style(style='cmsprel', show_cme=False, ax=self.ax1)
+        self.set_style(style='cms', show_cme=False, ax=self.ax1)
         self.set_preset_text(self.ax1,
-                             r'{0}, $Q^2{{=}}{1}\,\mathrm{{GeV}}^2$'.format(
+                             r'$Q^2{{=}}{1}\,\mathrm{{GeV}}^2$'.format(
                                  helper.get_partonlabel(self.flavor),
                                  helper.get_q2label(self.q2)), )
 
@@ -500,7 +500,7 @@ class SimplePDFRatioPlot(BasePlot):
         self.ax1.set_xscale(self.props.get('xscale', 'log'))
         self.ax1.set_yscale(self.props.get('yscale', 'linear'), nonposy='clip')
         self.ax1.set_xlabel("$x$", ha='right')
-        self.ax1.set_ylabel(r'$xf(x,Q^2)$', y = 1.0, size='large', ha='right')
+        self.ax1.set_ylabel(r'$x \cdot {}\left(x,Q^2\right)$'.format(helper.get_partonlabel(self.flavor, short=True)), y = 1.0, size='large', ha='right')
         self.ax1.minorticks_on()
         self.ax1.set_xlim(1E-4, 0.95)
         self.ax1.set_ylim(ymin=0.)
@@ -545,7 +545,7 @@ class SimplePDFPlot(BasePlot):
         self.ax = self.fig.add_subplot(111)
 
     def prepare(self):
-        self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
+        self.set_style(style='cms', show_cme=False, ax=self.ax)
         self.set_preset_text(self.ax,
                              r"{0}, $Q^2 = {1}\/\mathrm{{GeV}}^2$".format(
                                  helper.get_partonlabel(self.flavor),
@@ -591,7 +591,7 @@ class SimplePDFPlot(BasePlot):
 #
 #     def prepare(self):
 #         self.ax = self.fig.add_subplot(111)
-#         self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
+#         self.set_style(style='cms', show_cme=False, ax=self.ax)
 #         self.set_preset_text(self.ax,
 #                              r"{0}, $Q^2={1}\/\mathrm{{GeV}}^2$".format(
 #                                  helper.get_partonlabel(self.flavor),
@@ -633,17 +633,43 @@ class SimplePDFOverviewPlot(BasePlot):
         self.q2 = q2
         self.flavors = flavors
 
-        self.p_label_pos = {0: {'x': 3E-3, 'y': 0.55, 'va': 'bottom', 'ha': 'left'},
-                            7: {'x': 0.2, 'y': 0.34, 'va': 'bottom', 'ha': 'left'},
-                            8: {'x': 0.07, 'y': 0.6, 'va': 'bottom', 'ha': 'left'},
-                            9: {'x': 4E-4, 'y': 0.42, 'va': 'bottom', 'ha': 'left'},
-        }
+        if "HERAMCDR_DISCMSJETS_22P_NLO_QMIN75" in self.pdfs[0].label:
+            self.p_label_pos = {0: {'x': 3E-3, 'y': 0.57, 'va': 'bottom', 'ha': 'left'},
+                                7: {'x': 0.15, 'y': 0.42, 'va': 'bottom', 'ha': 'left'},
+                                8: {'x': 0.06, 'y': 0.65, 'va': 'bottom', 'ha': 'left'},
+                                9: {'x': 3E-3, 'y': 0.3, 'va': 'bottom', 'ha': 'left'},
+            }
+        elif "HERADISCMSJETS2011V2QED_13P_NLO_V124" in self.pdfs[0].label:
+            self.p_label_pos = {0: {'x': 3E-3, 'y': 0.50, 'va': 'bottom', 'ha': 'left'},
+                                7: {'x': 0.15, 'y': 0.35, 'va': 'bottom', 'ha': 'left'},
+                                8: {'x': 0.06, 'y': 0.63, 'va': 'bottom', 'ha': 'left'},
+                                9: {'x': 3E-3, 'y': 0.3, 'va': 'bottom', 'ha': 'left'},
+            }
+        elif "HERADISCMSJETS2011V2QED_13P_NLO_V202" in self.pdfs[0].label:
+            self.p_label_pos = {0: {'x': 3E-3, 'y': 0.57, 'va': 'bottom', 'ha': 'left'},
+                                7: {'x': 0.15, 'y': 0.35, 'va': 'bottom', 'ha': 'left'},
+                                8: {'x': 0.06, 'y': 0.63, 'va': 'bottom', 'ha': 'left'},
+                                9: {'x': 3E-3, 'y': 0.3, 'va': 'bottom', 'ha': 'left'},
+            }
+        else:
+            self.p_label_pos = {0: {'x': 3E-3, 'y': 0.50, 'va': 'bottom', 'ha': 'left'},
+                                7: {'x': 0.15, 'y': 0.35, 'va': 'bottom', 'ha': 'left'},
+                                8: {'x': 0.06, 'y': 0.63, 'va': 'bottom', 'ha': 'left'},
+                                9: {'x': 3E-3, 'y': 0.3, 'va': 'bottom', 'ha': 'left'},
+            }
+
+
+    def init_matplotlib(self):
+        super(SimplePDFOverviewPlot, self).init_matplotlib()
+        matplotlib.rcParams['xtick.major.pad'] = 6
+        matplotlib.rcParams['xtick.minor.pad'] = 8
+
 
     def prepare(self):
         self.ax = self.fig.add_subplot(111)
-        self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
+        self.set_style(style='cms', show_cme=False, ax=self.ax)
         self.set_preset_text(self.ax,
-                             r" $Q^2={0}\/\mathrm{{GeV}}^2$".format(
+                             r'$Q^2{{=}}{0}\,\mathrm{{GeV}}^2$'.format(
                                  helper.get_q2label(self.q2)), )
 
         #Add text for the individual PDFs
@@ -654,36 +680,36 @@ class SimplePDFOverviewPlot(BasePlot):
                             legend=False,
                             overview_scaling=True,
                             uncertainty='default')
-            #plot_simple_pdf(self.ax, [self.pdfs[1], ],
-            #                flavor, legend=False,
-            #                overview_scaling=True,
-            #                linestyle='-',
-            #                linewidth=2,
-            #                uncertainty='none',
-            #                color='black')
+            plot_simple_pdf(self.ax, [self.pdfs[1], ],
+                            flavor, legend=False,
+                            overview_scaling=True,
+                            linestyle='-',
+                            linewidth=2,
+                            uncertainty='none',
+                            color='black')
 
             s = helper.get_partonlabel(flavor, short=True)
-            self.ax.text(s=s, transform=self.ax.transData, color='Black',
+            self.ax.text(s="$x \cdot {}$".format(s), transform=self.ax.transData, color='Black',
                          **self.p_label_pos[flavor])
 
         self.ax.set_xscale('log')
-        self.ax.set_xlabel("$x$", ha='right')
-        self.ax.set_ylabel(r'$xf(x,Q^2)$')
+        self.ax.set_yscale('linear', nonposy='clip')
+        self.ax.set_xlabel("$x$", x=1.0, ha='right', size='x-large')
+        self.ax.set_ylabel(r'$x \cdot f\left(x,Q^2\right)$', y = 1.0, size='large', ha='right')
         self.ax.minorticks_on()
-        self.ax.autoscale(tight=True)
-        self.ax.set_xlim(1E-4, 0.98)
-        self.ax.set_ylim(ymin=0., ymax=2.0)
+        self.ax.set_xlim(1E-4, 0.95)
+        self.ax.set_ylim(ymin=0., ymax=1.0)
         #Get artists and labels for legend and chose which ones to display
-        #handles, labels = self.ax.get_legend_handles_labels()
+        handles, labels = self.ax.get_legend_handles_labels()
         ##Create custom artists
-        #pdf1 = matplotlib.patches.Rectangle((0, 0), 1, 1,
-        #                                    **pdf_fill_kwargs[0])
-        #pdf2 = plt.Line2D((0, 0), (1, 1), color='black', linestyle='-')
+        pdf1 = matplotlib.patches.Rectangle((0, 0), 1, 1,
+                                            **pdf_fill_kwargs[0])
+        pdf2 = plt.Line2D((0, 0), (1, 1), color='black', linestyle='-')
         ##Create legend from custom artist/label lists
-        #self.ax.legend(handles + [pdf1, pdf2],
-        #               labels + [helper.get_pdflabel(self.pdfs[0].label),
-        #                         helper.get_pdflabel(self.pdfs[1].label)],
-        #               loc='best', prop={'size': 14})
+        self.ax.legend(handles + [pdf1, pdf2],
+                       labels + [helper.get_pdflabel(self.pdfs[0].label),
+                                 helper.get_pdflabel(self.pdfs[1].label)],
+                       loc='best', prop={'size': 14})
 
         # minorLocator   = MultipleLocator(0.1)
         self.ax.yaxis.grid(True, which='major')
@@ -707,7 +733,7 @@ class SimplePDFOverviewPlot(BasePlot):
 #
 #     def prepare(self):
 #         self.ax = self.fig.add_subplot(111)
-#         self.set_style(style='cmsprel', show_cme=False, ax=self.ax)
+#         self.set_style(style='cms', show_cme=False, ax=self.ax)
 #         self.set_preset_text(self.ax,
 #                              r" $Q^2={0}\/\mathrm{{GeV}}^2$".format(
 #                                  helper.get_q2label(self.q2)), )
@@ -766,7 +792,7 @@ class SimplePDFOverviewPlot(BasePlot):
 #         self.ax1 = plt.subplot(gs[0])
 #         self.ax2 = plt.subplot(gs[1])
 #
-#         self.set_style(style='cmsprel', show_cme=False, ax=self.ax1)
+#         self.set_style(style='cms', show_cme=False, ax=self.ax1)
 #         self.set_preset_text(self.ax1,
 #                              r'{0}, $Q^2={1}\mathrm{{GeV}}^2$'.format(
 #                                  helper.get_partonlabel(self.flavor),

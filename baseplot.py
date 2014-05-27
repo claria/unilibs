@@ -72,12 +72,16 @@ class BasePlot(object):
         Initialize matplotlib with following rc
         """
         matplotlib.rcParams['lines.linewidth'] = 2
-        matplotlib.rcParams['font.family'] = 'serif'
+        matplotlib.rcParams['font.family'] = 'sans-serif'
         matplotlib.rcParams['font.serif'] = 'Computer Modern'
+        #matplotlib.rcParams['text.latex.preamble'] = r'\usepackage{cmbright)'
+        matplotlib.rcParams['font.sans-serif'] = 'Computer Modern Sans serif'
+        matplotlib.rcParams['font.monospace'] = 'Computer Modern Typewriter'
         matplotlib.rcParams['font.style'] = 'normal'
         matplotlib.rcParams['font.size'] = 20.
         matplotlib.rcParams['legend.fontsize'] = 14.
         matplotlib.rcParams['text.usetex'] = True
+        matplotlib.rc('text.latex', preamble=r'\usepackage{cmbright}')
         # Axes
         matplotlib.rcParams['axes.linewidth'] = 2.0
         # Saving
@@ -116,7 +120,7 @@ class BasePlot(object):
                 self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
                                      loc='topleft', )
         else:
-            self.set_preset_text(ax, "CMS", loc='topleft')
+            self.set_preset_text(ax, r"\textbf{CMS}", loc='topleft')
             if show_cme:
                 self.set_preset_text(ax, r"$\sqrt{s} = 7\/ \mathrm{TeV}$",
                                      loc='topleft', )

@@ -34,16 +34,16 @@ def get_partonlabel(s, short=False):
                      8: '$u_{\mathrm{val}}$ quark',
                      9: 'sea quarks'}
 
-    parton_labels_short = {0: "$g$",
-                           1: r"$D$",
-                           2: r"$U$",
-                           3: r"$s$",
-                           4: r"$c$",
-                           -1: r'$\bar D$',
-                           -2: r'$\bar U$',
-                           7: r'$d_{V}$',
-                           8: r'$u_{V}$',
-                           9: r'$\mathrm{sea}$'}
+    parton_labels_short = {0: r"g",
+                           1: r"D",
+                           2: r"U",
+                           3: r"s",
+                           4: r"c",
+                           -1: r"\bar D",
+                           -2: r"\bar U",
+                           7: r"d_{{\mathrm{{v}}}}",
+                           8: r"u_{{\mathrm{{v}}}}",
+                           9: r"\Sigma"}
 
     if short:
         if s in parton_labels:
@@ -61,7 +61,11 @@ def get_q2label(q2):
     q2_str = r'{:.2G}'.format(q2)
     if "E" in q2_str:
         base, exponent = q2_str.split('E')
-        return r"{0}\times 10^{{{1}}}".format(base, int(exponent))
+        print base, exponent
+        if base == '1':
+            return r"10^{{{0}}}".format(int(exponent))
+        else:
+            return r"{0}\times 10^{{{1}}}".format(base, int(exponent))
     else:
         return q2_str
 
